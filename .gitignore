@@ -5,6 +5,7 @@ target/
 !.env.example
 *.log
 src/main/java/apikey.txt
+docs/demo-evidence/token.txt
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
