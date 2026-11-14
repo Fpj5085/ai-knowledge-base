@@ -1544,9 +1544,26 @@
                     ? Number(source.distance).toFixed(4)
                     : "未知";
 
-                item.innerText =
-                    `【知识片段 ${index + 1}】距离：${distance}\n` +
-                    `${source.content || ""}`;
+                const version = source.versionNo !== undefined && source.versionNo !== null
+                    ? `v${source.versionNo}`
+                    : "最新";
+                const offset = source.charOffset !== undefined && source.charOffset !== null
+                    ? `字符偏移 ${source.charOffset}`
+                    : "偏移未知";
+                const score = source.similarityScore !== undefined && source.similarityScore !== null
+                    ? Number(source.similarityScore).toFixed(4)
+                    : "未知";
+
+                const head = document.createElement("div");
+                head.className = "source-meta";
+                head.innerText =
+                    `【知识片段 ${index + 1}】文档 ${source.documentId ?? "未知"} · 版本 ${version} · ${offset} · 相似度 ${score} · 距离 ${distance}`;
+
+                const body = document.createElement("div");
+                body.innerText = source.content || "";
+
+                item.appendChild(head);
+                item.appendChild(body);
             }
 
             sourceBox.appendChild(item);

@@ -31,4 +31,19 @@ public class RagSource {
      * 被检索到的文本内容
      */
     private String content;
+
+    /**
+     * 引用所属文档版本号
+     */
+    private Integer versionNo;
+
+    /**
+     * 引用片段在归一化全文中的起始字符偏移
+     */
+    private Integer charOffset;
+
+    /**
+     * 相似度得分 = 1 - 向量距离，越大越相似
+     */
+    private Double similarityScore;
 }

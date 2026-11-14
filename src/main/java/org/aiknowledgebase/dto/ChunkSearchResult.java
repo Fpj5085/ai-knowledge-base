@@ -31,4 +31,14 @@ public class ChunkSearchResult {
      * 向量距离，数值越小表示越相似
      */
     private Double distance;
+
+    /**
+     * 命中切片所属文档版本号；无版本数据（旧数据/上传文件切片）时为 null
+     */
+    private Integer versionNo;
+
+    /**
+     * 切片在归一化全文中的起始字符偏移
+     */
+    private Integer charOffset;
 }

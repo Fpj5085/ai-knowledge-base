@@ -47,6 +47,7 @@ public class RagController {
                                  @RequestParam(required = false) String sessionId,
                                  @RequestParam(required = false) Long uploadedFileId,
                                  @RequestParam(defaultValue = "false") boolean webSearch,
+                                 @RequestParam(required = false) Long documentVersionId,
                                  @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                  HttpServletRequest request) {
 
@@ -87,7 +88,8 @@ public class RagController {
                 topK,
                 sessionId,
                 uploadedFileId,
-                webSearch
+                webSearch,
+                documentVersionId
         );
     }
 
@@ -102,6 +104,7 @@ public class RagController {
                                                            @RequestParam(required = false) String sessionId,
                                                            @RequestParam(required = false) Long uploadedFileId,
                                                            @RequestParam(defaultValue = "false") boolean webSearch,
+                                                           @RequestParam(required = false) Long documentVersionId,
                                                            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
                                                            HttpServletRequest request) {
 
@@ -147,6 +150,7 @@ public class RagController {
                 sessionId,
                 uploadedFileId,
                 webSearch,
+                documentVersionId,
                 (type, data) -> writeStreamEvent(outputStream, type, data)
         );
 

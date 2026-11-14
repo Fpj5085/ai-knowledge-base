@@ -37,7 +37,8 @@ public class VectorController {
     @GetMapping("/search")
     public List<ChunkSearchResult> searchSimilarChunks(@RequestParam Long knowledgeBaseId,
                                                        @RequestParam String query,
-                                                       @RequestParam(defaultValue = "3") int topK) {
-        return vectorStoreService.searchSimilarChunks(knowledgeBaseId, query, topK);
+                                                       @RequestParam(defaultValue = "3") int topK,
+                                                       @RequestParam(required = false) Long documentVersionId) {
+        return vectorStoreService.searchSimilarChunks(knowledgeBaseId, query, topK, documentVersionId);
     }
 }

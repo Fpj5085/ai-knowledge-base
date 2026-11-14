@@ -48,7 +48,8 @@ public class RagService {
                                  int topK,
                                  String sessionId,
                                  Long uploadedFileId,
-                                 boolean webSearch) {
+                                 boolean webSearch,
+                                 Long documentVersionId) {
 
         String normalizedQuestion = question == null ? "" : question.trim();
 
@@ -183,7 +184,8 @@ public class RagService {
         List<ChunkSearchResult> chunks = vectorStoreService.searchSimilarChunks(
                 knowledgeBaseId,
                 retrievalQuestion,
-                topK
+                topK,
+                documentVersionId
         );
 
         if (chunks == null || chunks.isEmpty()) {
@@ -245,6 +247,7 @@ public class RagService {
                           String sessionId,
                           Long uploadedFileId,
                           boolean webSearch,
+                          Long documentVersionId,
                           BiConsumer<String, Object> sendEvent) {
 
         try {
@@ -345,7 +348,8 @@ public class RagService {
                 List<ChunkSearchResult> chunks = vectorStoreService.searchSimilarChunks(
                         knowledgeBaseId,
                         retrievalQuestion,
-                        topK
+                        topK,
+                        documentVersionId
                 );
 
                 if (chunks == null || chunks.isEmpty()) {
@@ -391,7 +395,10 @@ public class RagService {
                         chunk.getDocumentId(),
                         chunk.getChunkIndex(),
                         chunk.getDistance(),
-                        chunk.getContent()
+                        chunk.getContent(),
+                        chunk.getVersionNo(),
+                        chunk.getCharOffset(),
+                        chunk.getDistance() == null ? null : 1 - chunk.getDistance()
                 ))
                 .toList();
     }
@@ -680,8 +687,12 @@ public class RagService {
                     .append("】\n")
                     .append("文档 ID：")
                     .append(chunk.getDocumentId())
+                    .append("，版本号：")
+                    .append(chunk.getVersionNo() == null ? "最新" : chunk.getVersionNo())
                     .append("，切片序号：")
                     .append(chunk.getChunkIndex())
+                    .append("，字符偏移：")
+                    .append(chunk.getCharOffset() == null ? "未知" : chunk.getCharOffset())
                     .append("，相似度距离：")
                     .append(chunk.getDistance())
                     .append("\n")

@@ -126,7 +126,9 @@ public class VectorStoreService {
                         rs.getLong("document_id"),
                         rs.getInt("chunk_index"),
                         rs.getString("content"),
-                        rs.getDouble("distance")
+                        rs.getDouble("distance"),
+                        null,
+                        null
                 ),
                 queryVector,
                 uploadedFileId,
@@ -137,30 +139,98 @@ public class VectorStoreService {
     }
     /**
      * 根据用户问题，在某个知识库中检索最相关的文本切片。
+     * documentVersionId 为 null 时默认只检索每个文档的最新版本；
+     * 指定时只检索该版本（版本问答开关）。
      */
-    public List<ChunkSearchResult> searchSimilarChunks(Long knowledgeBaseId, String query, int topK) {
+    public List<ChunkSearchResult> searchSimilarChunks(Long knowledgeBaseId, String query, int topK, Long documentVersionId) {
         initVectorColumn();
         initUploadedChunkVectorColumn();
 
         double[] queryEmbedding = embeddingService.embed(query);
         String queryVector = embeddingService.toVectorLiteral(queryEmbedding);
 
-        String sql = """
-            SELECT id, document_id, chunk_index, content, distance
+        String sql;
+        org.springframework.jdbc.core.RowMapper<ChunkSearchResult> rowMapper = (rs, rowNum) -> new ChunkSearchResult(
+                rs.getLong("id"),
+                rs.getLong("document_id"),
+                rs.getInt("chunk_index"),
+                rs.getString("content"),
+                rs.getDouble("distance"),
+                rs.getObject("version_no") == null ? null : rs.getInt("version_no"),
+                rs.getObject("char_offset") == null ? null : rs.getInt("char_offset")
+        );
+
+        if (documentVersionId != null) {
+            sql = """
+            SELECT id, document_id, version_no, char_offset, chunk_index, content, distance
             FROM (
-                SELECT id,
-                       document_id,
-                       chunk_index,
-                       content,
-                       embedding <=> CAST(? AS vector) AS distance
-                FROM kb_text_chunk
-                WHERE knowledge_base_id = ?
-                  AND embedding IS NOT NULL
+                SELECT tc.id AS id,
+                       tc.document_id AS document_id,
+                       dv.version_no AS version_no,
+                       tc.char_offset AS char_offset,
+                       tc.chunk_index AS chunk_index,
+                       tc.content AS content,
+                       tc.embedding <=> CAST(? AS vector) AS distance
+                FROM kb_text_chunk tc
+                LEFT JOIN kb_document_version dv ON dv.id = tc.document_version_id
+                WHERE tc.knowledge_base_id = ?
+                  AND tc.embedding IS NOT NULL
+                  AND tc.document_version_id = ?
 
                 UNION ALL
 
                 SELECT id,
                        uploaded_file_id AS document_id,
+                       NULL::integer AS version_no,
+                       NULL::integer AS char_offset,
+                       chunk_index,
+                       content,
+                       embedding <=> CAST(? AS vector) AS distance
+                FROM kb_uploaded_file_chunk
+                WHERE knowledge_base_id = ?
+                  AND embedding IS NOT NULL
+            ) t
+            ORDER BY distance
+            LIMIT ?
+            """;
+
+            return jdbcTemplate.query(
+                    sql,
+                    rowMapper,
+                    queryVector,
+                    knowledgeBaseId,
+                    documentVersionId,
+                    queryVector,
+                    knowledgeBaseId,
+                    topK
+            );
+        }
+
+        sql = """
+            SELECT id, document_id, version_no, char_offset, chunk_index, content, distance
+            FROM (
+                SELECT tc.id,
+                       tc.document_id,
+                       dv.version_no AS version_no,
+                       tc.char_offset AS char_offset,
+                       tc.chunk_index,
+                       tc.content,
+                       tc.embedding <=> CAST(? AS vector) AS distance
+                FROM kb_text_chunk tc
+                LEFT JOIN kb_document_version dv ON dv.id = tc.document_version_id
+                WHERE tc.knowledge_base_id = ?
+                  AND tc.embedding IS NOT NULL
+                  AND (tc.document_version_id IS NULL
+                       OR dv.version_no = (SELECT MAX(dv2.version_no)
+                                           FROM kb_document_version dv2
+                                           WHERE dv2.document_id = tc.document_id))
+
+                UNION ALL
+
+                SELECT id,
+                       uploaded_file_id AS document_id,
+                       NULL::integer AS version_no,
+                       NULL::integer AS char_offset,
                        chunk_index,
                        content,
                        embedding <=> CAST(? AS vector) AS distance
@@ -174,13 +244,7 @@ public class VectorStoreService {
 
         return jdbcTemplate.query(
                 sql,
-                (rs, rowNum) -> new ChunkSearchResult(
-                        rs.getLong("id"),
-                        rs.getLong("document_id"),
-                        rs.getInt("chunk_index"),
-                        rs.getString("content"),
-                        rs.getDouble("distance")
-                ),
+                rowMapper,
                 queryVector,
                 knowledgeBaseId,
                 queryVector,
@@ -227,7 +291,9 @@ public class VectorStoreService {
                         rs.getLong("document_id"),
                         rs.getInt("chunk_index"),
                         rs.getString("content"),
-                        rs.getDouble("distance")
+                        rs.getDouble("distance"),
+                        null,
+                        null
                 ),
                 queryVector,
                 uploadedFileId,

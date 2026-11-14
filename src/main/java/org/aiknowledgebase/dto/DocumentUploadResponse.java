@@ -14,4 +14,9 @@ public class DocumentUploadResponse {
     private Integer chunkCount;
 
     private String status;
+
+    /**
+     * 本次上传对应的文档版本号；内容未变化的重传返回当前最新版本号
+     */
+    private Integer versionNo;
 }
