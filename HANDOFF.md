@@ -268,3 +268,27 @@ compose.ollama.yml 已就绪（容器 akb-ollama，宿主机 11435，不占 1143
     B3: containerized deployment (Dockerfile, app service, llm base-url param)
     B3: demo docs, curl/persistence evidence and screenshots
     B3: handoff and readme one-click deploy section
+
+## 8. 磁盘事件与清理记录（总控磁盘纪律）
+
+背景：用户发现 Docker vhdx（C 盘）1 小时上涨约 21GB，C 盘仅剩约 26.7GB；A 项目并行构建中。总控指令：B 项目停止一切镜像重建，后续验证基于现有 akb-app 镜像；收尾执行 docker builder prune -f 与 docker image prune -f。
+
+清理前 docker system df：
+
+    Images 53/22  7.723GB（可回收 1.144GB）
+    Containers 31/17  128.3MB
+    Local Volumes 18/15  833.4MB
+    Build Cache 316/8  10.25GB（可回收 4.823GB）
+
+执行：docker builder prune -f（回收 4.737GB，含与 A 项目共存的悬空缓存层）、docker image prune -f（回收 41.45MB 悬空镜像）。均 exit code 0，未遇到 build in progress 报错。
+
+清理后 docker system df：
+
+    Images 52/22  7.664GB（可回收 1.085GB）
+    Containers 31/17  128.3MB
+    Local Volumes 18/15  833.4MB
+    Build Cache 266/8  5.513GB
+
+合计回收约 4.78GB。保留项说明：Build Cache 剩余 8 个 ACTIVE 条目未清理（属于仍在使用的构建上下文，可能包含 A 项目活跃缓存，按指令不动）；命名卷（含 akb 演示数据）全部保留。
+
+B 项目后续纪律：不再发起任何镜像重建；持久化/演示验证均基于现有 akb-app 镜像进行（已完成）。
