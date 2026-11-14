@@ -248,3 +248,15 @@ src/main/resources
 ## License
 
 本项目采用 [MIT License](LICENSE)。
+
+## 二次开发（B2：文档版本管理 + 来源引用增强）
+
+在原项目基础上新增（不影响原有功能与接口兼容性）：
+
+- **文档版本管理**：新增 kb_document_version 表（version_no、content_hash 等），kb_text_chunk 增加 document_version_id 与 char_offset。同一知识库内重传同名文档：内容相同（SHA-256 一致）不重复入库；内容变化自动生成新版本并重建切片，旧版本切片按版本归档、可按版本检索。并发上传由数据库唯一约束 uk_doc_version(document_id, version_no) 兜底。
+- **版本 API**：GET /api/documents/{id}/versions（版本列表）、GET /api/documents/{id}/versions/{versionNo}（版本预览，含全文）；/api/vector/search 与 /api/rag/ask(/stream) 均新增可选 documentVersionId 参数——不传默认只检索每个文档的最新版本，传入则检索指定版本。
+- **来源引用增强**：RAG 引用（RagSource）新增 versionNo（文档版本号）、charOffset（片段在归一化全文中的起始字符偏移）、similarityScore（1 - 向量距离）；流式 NDJSON 的 sources 事件沿用同一结构。前端引用卡片展示“文档 ID · 版本 · 字符偏移 · 相似度”并可展开片段原文。
+- **可选本地 Ollama**：compose.ollama.yml 独立文件，宿主机端口 11435，通过 docker compose -f compose.yaml -f compose.ollama.yml --profile ollama up -d ollama 启动；默认隔离 compose 不受影响。
+- **测试**：DocumentVersionRagIntegrationTest（7 个用例：v1 建档 / 同内容不重复建档 / 变更生成 v2 / 默认检索仅最新版 / 指定版本检索 / RAG 引用可追踪 / 版本预览）与 FrontendSourceCardTest（前端卡片构建验证），embedding 与 LLM 使用确定性 mock，零密钥、零付费调用。
+
+迁移方式说明：沿用项目既有的 Hibernate ddl-auto: update 等价迁移机制生成新表/新列，未引入 Flyway，也没有修改既有结构；完整 DDL 参见 docs/migrations/V2__b2_document_version.sql。

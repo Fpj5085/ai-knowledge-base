@@ -1,0 +1,15 @@
+# B2: 可选的本地 Ollama 服务（独立文件，不影响默认隔离 compose）。
+# 启动：docker compose -f compose.yaml -f compose.ollama.yml up -d ollama
+# 宿主机端口使用 11435，不占用默认 11434。
+services:
+  ollama:
+    profiles: ["ollama"]
+    container_name: akb-ollama
+    ports: !override
+      - "11435:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
