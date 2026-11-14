@@ -260,3 +260,27 @@ src/main/resources
 - **测试**：DocumentVersionRagIntegrationTest（7 个用例：v1 建档 / 同内容不重复建档 / 变更生成 v2 / 默认检索仅最新版 / 指定版本检索 / RAG 引用可追踪 / 版本预览）与 FrontendSourceCardTest（前端卡片构建验证），embedding 与 LLM 使用确定性 mock，零密钥、零付费调用。
 
 迁移方式说明：沿用项目既有的 Hibernate ddl-auto: update 等价迁移机制生成新表/新列，未引入 Flyway，也没有修改既有结构；完整 DDL 参见 docs/migrations/V2__b2_document_version.sql。
+
+## 一键部署（B2/B3 验证过）
+
+前置：Docker Desktop 运行中，JDK 21+（宿主机跑测试用）。首次构建镜像约 2-5 分钟（Maven 依赖走阿里云镜像）。
+
+    docker compose up -d --build
+
+启动后自动完成：
+
+- akb-postgres（pgvector/pgvector:pg16，宿主机 55433）自动 CREATE EXTENSION vector 并由 Hibernate 建表迁移
+- akb-redis（redis:7-alpine，宿主机 16379）
+- akb-app（Spring Boot，宿主机 8082 → 容器 8080），启动即建表，前端单页直接可访问 http://localhost:8082
+
+环境变量（全部可选，密钥走环境变量不入 Git）：
+
+    $env:OPENROUTER_API_KEY = "你的Key"        # 可选；不设则使用占位符
+    $env:OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"   # 可指向本地 Ollama 的 http://localhost:11434/v1（OpenAI 兼容）
+    $env:OPENROUTER_MODEL = "qwen2.5-chat"     # 本地演示用 Ollama 模型名
+
+本地 Ollama（可选，零付费演示路径）：宿主机安装 Ollama 后导入本地 GGUF（如 nomic-embed-text、qwen2.5-0.5b），应用容器通过 host.docker.internal:11434 访问，无需 API Key。compose.ollama.yml 提供容器化 Ollama 备选（宿主机 11435）。
+
+停止与持久化：docker compose down 保留命名卷（postgres-data/redis-data），重新 up 后文档、版本、会话历史全部保留。
+
+演示材料：docs/demo-docs/（自制合成文档 v1/v2/PDF/DOCX）与 docs/demo-evidence/（curl 证据、持久化证据、界面截图）。

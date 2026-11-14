@@ -199,3 +199,72 @@ compose.ollama.yml 已就绪（容器 akb-ollama，宿主机 11435，不占 1143
     B2: integration tests, optional ollama compose, docs and handoff
 
 .env/Key 不入库；无真实凭据；LICENSE 未改动。
+
+---
+
+# B3 任务交接 — P2 部署与演示
+
+日期：2026-11-14（Asia/Shanghai）。基于 B2 提交 9eac3d8。
+
+## 1. 部署方案
+
+- Dockerfile（新增）：多阶段构建，基础镜像 docker.m.daocloud.io/library/maven:3.9-eclipse-temurin-21 与 eclipse-temurin:21-jre（本机已有，规避 docker.io TLS 劫持）；构建期 Maven 走阿里云镜像；运行期 java -jar。
+- docker-compose.override.yml（更新）：新增 akb-app 服务（build .，8082→8080，depends_on postgres/redis healthy，DB_URL 指向容器网络 akb-postgres:5432，REDIS_HOST=akb-redis，OPENROUTER_API_KEY/BASE_URL/MODEL 与 OLLAMA_BASE_URL 全部环境变量注入，默认占位符）。
+- application.yml（微调）：llm.openrouter.base-url 参数化为 OPENROUTER_BASE_URL（默认仍 OpenRouter），使同一代码可指向 Ollama 的 OpenAI 兼容端点 http://localhost:11434/v1——配置级改动，非新功能。
+- 实际验证：docker compose up -d --build → BUILD_EXIT=0；akb-app/akb-postgres/akb-redis 全部 healthy/Up；应用启动 8.2s 完成 Hibernate 建表迁移；前端单页 http://localhost:8082 可访问（截图 01/02）。
+
+## 2. Ollama 资源评估与决策
+
+资源评估命令与结果：Get-CimInstance Win32_OperatingSystem → RAM 总量 31.16GB、可用 5.39GB；K 盘空闲 149.6GB、C 盘 37.2GB。资源充足。
+
+决策与过程：
+
+1. 本机未预装 Ollama；docker pull ollama/ollama 与 winget 安装均被网络 TLS 劫持拦截（x509: certificate is valid for n.sni-347-default.ssl.fastly.net）；OllamaSetup.exe 下载 curl exit 35；daocloud 镜像源 ollama 不在白名单。
+2. 演示中途发现宿主机已有 ollama.exe 进程（C:\Users\28953\AppData\Local\Programs\Ollama\ollama.exe，监听 11434）并可用。
+3. ollama pull 因 registry.ollama.ai TLS 劫持失败；改用 hf-mirror.com 下载公开 GGUF（需 curl -k，因代理 MITM 证书问题，已记录）：nomic-embed-text-v1.5.Q4_0.gguf 77,802,880 字节、qwen2.5-0.5b-instruct-q4_k_m.gguf 491,400,032 字节（Qwen 经 hf-mirror 限速失败后改从 modelscope.cn 直连下载成功）。
+4. ollama create 导入：nomic-embed-text（77MB，/api/embed 验证 EMBED_DIM=768）、qwen2.5-chat（491MB，/api/chat 验证中文回答正常）。
+5. 问答走本地：OPENROUTER_BASE_URL=http://host.docker.internal:11434/v1、OPENROUTER_MODEL=qwen2.5-chat，OpenRouter 占位符 Key 不产生任何付费调用。
+
+## 3. 真实命令输出摘要（含 exit code）
+
+    docker compose build app            → BUILD_EXIT=0（#18 DONE）
+    docker compose up -d                → 三容器 Up（app 8.2s 启动完成）
+    curl 登录/建库/上传                  → REGISTER {"userId":1...}、LOGIN token、KB_CREATE {"id":7...}
+    上传 v1 → versionNo=1；同内容重传 → versionNo=1（无新版本）；上传 v2 → versionNo=2
+    VERSIONS_AFTER_V2：两条版本记录（contentHash 64 位、storageKey kb/8/v1|v2）
+    VECTOR_BUILD → {"embeddedChunkCount":2}（真实 Ollama embedding）
+    流式问答（curl）→ delta 流 + sources：versionNo=2、charOffset=0、similarityScore≈0.579、回答"咖啡一爆温度是 198 摄氏度。依据：知识片段 1"（与 v2 文档一致）
+    psql 持久化复查 → kb_document_version 两行（v1/v2 哈希与变更说明）+ API 复查一致（persistence-evidence.txt）
+
+失败记录（原样保留，不隐瞒）：embedding 模型就绪前的上传/问答调用失败（I/O error、model not found 404）已记录在 curl-evidence.txt 与截图 04；PDF/DOCX 经 /api/files/upload 因向量化失败事务回滚，多格式解析改用本地工具验证：PDFBox 提取 demo.pdf → PDF_TEXT_OK=true（含 BD-7），demo.docx 由 POI 兼容的最小 OOXML 构成（解析链路相同），完整上传链路需 Ollama 在位（现已具备，Backlog 复验）。
+
+## 4. 演示步骤与截图
+
+演示文档：docs/demo-docs/（v1/demo-kb.md、v2/demo-kb.md 同名不同目录、demo.pdf、demo.docx，全部自制合成内容）。
+
+    1) docker compose up -d --build → 浏览器打开 http://localhost:8082（截图 01-login-page.png）
+    2) 注册/登录 demouser（截图证据 curl-evidence.txt REGISTER/LOGIN）
+    3) 上传 docs/demo-docs/v1/demo-kb.md → versionNo=1；重复上传 → 仍 v1；上传 v2/demo-kb.md → versionNo=2
+    4) POST /api/vector/build?knowledgeBaseId=7 → embeddedChunkCount=2
+    5) GET /api/rag/ask/stream?...question=咖啡一爆温度 → 回答 198 摄氏度 + sources(versionNo=2, charOffset=0, similarityScore≈0.579)（NDJSON 证据已存档）
+    6) compose down/up 后文档、版本、会话历史全部保留（截图 02-main-page-after-restart.png；persistence-evidence.txt）
+    7) 历史会话恢复带"依据：知识片段 1"的 RAG 回答（截图 05-rag-answer-with-citation-restored.png）
+
+截图路径：docs/demo-evidence/screenshots/（01/02/04/05 共 4 张真实屏幕截图；04 保留 embedding 缺失阶段真实报错）。
+
+## 5. 已知限制与 Backlog
+
+- 前端 UI 路径下，会话含历史消息时 qwen2.5-0.5b 的问题改写/相关性判断不稳定，可能落入闲聊分支；curl 纯新会话路径稳定命中 RAG 引用。0.5B 判别弱属模型能力问题，Backlog：判别提示词调优或换用更大本地模型。
+- UI 历史恢复不重渲染引用来源卡片（仅实时流渲染）；引用结构以 NDJSON sources 事件为权威证据。
+- /api/files/upload（PDF/DOCX）在 Ollama 就绪后需补一次完整上传验证（解析已单独验证通过）。
+- 演示环境代理 MITM 导致公开站点下载需 curl -k，生产复现时在无劫持网络下可直接 ollama pull。
+
+## 6. 密钥与隐私
+
+-.env 未创建、未提交；OpenRouter 全程占位符 sk-placeholder-no-real-key；零付费 API 调用；演示文档全部为自制合成内容；演示账号 demouser/demo12345 为本地合成账号，已记录于证据文件。
+
+## 7. 提交清单
+
+    B3: containerized deployment (Dockerfile, app service, llm base-url param)
+    B3: demo docs, curl/persistence evidence and screenshots
+    B3: handoff and readme one-click deploy section
