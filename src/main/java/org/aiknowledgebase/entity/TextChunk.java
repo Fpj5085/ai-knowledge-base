@@ -27,6 +27,12 @@ public class TextChunk {
     private Long documentId;
 
     /**
+     * 所属文档版本 ID（kb_document_version.id），历史数据允许为空
+     */
+    @Column(name = "document_version_id")
+    private Long documentVersionId;
+
+    /**
      * 当前切片序号，从 0 开始
      */
     @Column(nullable = false)
@@ -42,6 +48,12 @@ public class TextChunk {
      * 文本长度，先按字符数统计
      */
     private Integer charCount;
+
+    /**
+     * 切片在归一化全文中的起始字符偏移
+     */
+    @Column(name = "char_offset")
+    private Integer charOffset;
 
     /**
      * 创建时间

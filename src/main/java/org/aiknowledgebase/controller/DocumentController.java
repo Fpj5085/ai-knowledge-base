@@ -43,4 +43,21 @@ public class DocumentController {
     public List<TextChunk> listChunks(@PathVariable Long documentId) {
         return documentService.listChunks(documentId);
     }
+
+    /**
+     * 查询文档的全部版本
+     */
+    @GetMapping("/{documentId}/versions")
+    public List<org.aiknowledgebase.entity.DocumentVersion> listVersions(@PathVariable Long documentId) {
+        return documentService.listVersions(documentId);
+    }
+
+    /**
+     * 预览指定版本（版本元数据 + 该版本切片全文）
+     */
+    @GetMapping("/{documentId}/versions/{versionNo}")
+    public java.util.Map<String, Object> previewVersion(@PathVariable Long documentId,
+                                                        @PathVariable Integer versionNo) {
+        return documentService.previewVersion(documentId, versionNo);
+    }
 }

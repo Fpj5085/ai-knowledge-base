@@ -9,5 +9,7 @@ public interface TextChunkRepository extends JpaRepository<TextChunk, Long> {
 
     List<TextChunk> findByDocumentIdOrderByChunkIndexAsc(Long documentId);
 
+    List<TextChunk> findByDocumentIdAndDocumentVersionIdOrderByChunkIndexAsc(Long documentId, Long documentVersionId);
+
     List<TextChunk> findByKnowledgeBaseId(Long knowledgeBaseId);
 }
