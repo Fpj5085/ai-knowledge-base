@@ -1,0 +1,49 @@
+=== B3 demo curl evidence 2026-11-14T13:24:43 ===
+REGISTER: {"userId":1,"username":"demouser","nickname":"演示用户"}
+LOGIN: {"token":"4ef7486f304d4adeab9068b3fc78525e","userId":1,"username":"demouser","nickname":"演示用户"}
+TOKEN_SAVED len=32
+KB_CREATE: {"id":7,"name":"B3演示知识库","description":"部署演示","createTime":"2026-11-14T05:27:13.9102989","updateTime":"2026-11-14T05:27:13.9102989"}
+KB_ID=7
+UPLOAD_V1: {"documentId":8,"fileName":"demo-kb.md","chunkCount":1,"status":"PARSED","versionNo":1}
+DOC_ID=8
+UPLOAD_V1_AGAIN: {"documentId":8,"fileName":"demo-kb.md","chunkCount":1,"status":"PARSED","versionNo":1}
+UPLOAD_V2: {"documentId":8,"fileName":"demo-kb.md","chunkCount":1,"status":"PARSED","versionNo":2}
+VERSIONS_AFTER_V2: [{"id":13,"documentId":8,"versionNo":1,"fileName":"demo-kb.md","fileSize":456,"fileType":"md","contentHash":"4cf8aebb56133467aaec11a63c9a0ba9a737246a19b143eb3e8aee3d5f1d740b","storageKey":"kb/8/v1","changeNote":"首次上传","createdBy":null,"createTime":"2026-11-14T05:27:14.080703"},{"id":14,"documentId":8,"versionNo":2,"fileName":"demo-kb.md","fileSize":563,"fileType":"md","contentHash":"ebbf6436972774fc87953eb356c47a29676f509d93c4a3e9f650c6bdd92fa9b4","storageKey":"kb/8/v2","changeNote":"内容变更，重新入库并向量化","createdBy":null,"createTime":"2026-11-14T05:27:14.163635"}]
+PREVIEW_V2_HEAD: # 星云咖啡烘焙指南（演示文档 v2） |  | 本文档为自制合成演示内容，用于 B3 部署演示。第二版更新了烘焙与冲煮章节。
+VECTOR_BUILD_EXPECTED_FAIL: 
+{
+  "message": "\u670D\u52A1\u5668\u5185\u90E8\u9519\u8BEF\uFF1AI/O error on POST request for \u0022http://host.docker.internal:11434/api/embed\u0022: null"
+}
+ASK_STREAM_STATUS: 200
+ASK_STREAM_HEAD: 123 | 34 | 116
+UPLOAD_PDF: null
+UPLOAD_DOCX: null
+FILE_IDS pdf= docx=
+ASK_STREAM_STATUS: 200
+ASK_STREAM_BODY_HEAD: {"type":"sessionId","data":"234fa784-e4a1-4479-9945-c91cdcf9b336"} | {"type":"error","data":"流式问答失败：I/O error on POST request for \"http://host.docker.internal:11434/api/embed\": null"} | {"type":"done","data":"done"} | 
+VECTOR_BUILD: {"message":"向量构建完成","knowledgeBaseId":7,"embeddedChunkCount":2}
+ASK_V2_ERR: Response status code does not indicate success: 401 ().
+ASK_FINAL_LINES: 23
+NDJSON: {"type":"sessionId","data":"2c6e5de5-9ade-4f07-890c-a4fb4ca8f054"}
+NDJSON: {"type":"delta","data":"依据"}
+NDJSON: {"type":"delta","data":"："}
+NDJSON: {"type":"delta","data":"知识"}
+NDJSON: {"type":"delta","data":"片段"}
+NDJSON: {"type":"delta","data":" "}
+NDJSON: {"type":"delta","data":"1"}
+NDJSON: {"type":"delta","data":"\n"}
+NDJSON: {"type":"delta","data":"咖啡"}
+NDJSON: {"type":"delta","data":"一"}
+NDJSON: {"type":"delta","data":"爆"}
+NDJSON: {"type":"delta","data":"温度"}
+NDJSON: {"type":"delta","data":"是"}
+NDJSON: {"type":"delta","data":" "}
+NDJSON: {"type":"delta","data":"1"}
+NDJSON: {"type":"delta","data":"9"}
+NDJSON: {"type":"delta","data":"8"}
+NDJSON: {"type":"delta","data":" 摄"}
+NDJSON: {"type":"delta","data":"氏"}
+NDJSON: {"type":"delta","data":"度"}
+NDJSON: {"type":"delta","data":"。"}
+NDJSON: {"type":"sources","data":[{"chunkId":14,"documentId":8,"chunkIndex":0,"distance":0.42133883412415096,"content":"# 星云咖啡烘焙指南（演示文档 v2）\n\n本文档为自制合成演示内容，用于 B3 部署演示。第二版更新了烘焙与冲煮章节。\n\n## 咖啡豆产地\n\n云南保山产区海拔约 1200 米，采用水洗处理法，酸质明亮，带有柑橘与红茶风味。\n\n## 烘焙曲线\n\n第二版修订：一爆出现在 198 摄氏度，发展期建议延长至总烘焙时间的 20% 到 24%，并新增 ROR 充足下降原则。\n\n## 冲煮参数\n\n第二版修订：手冲推荐粉水比 1:16，水温 90 摄氏度，萃取时间 2 分 45 秒。","versionNo":2,"charOffset":0,"similarityScore":0.578661165875849}]}
+NDJSON: {"type":"done","data":"done"}

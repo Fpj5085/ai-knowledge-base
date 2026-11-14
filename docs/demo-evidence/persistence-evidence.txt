@@ -1,0 +1,12 @@
+ document_id | version_no | file_name  |    hash_head     |        change_note         
+-------------+------------+------------+------------------+----------------------------
+           8 |          1 | demo-kb.md | 4cf8aebb56133467 | 首次上传
+           8 |          2 | demo-kb.md | ebbf6436972774fc | 内容变更，重新入库并向量化
+(2 rows)
+
+ chunks_v2 
+-----------
+         2
+(1 row)
+
+API_VERSIONS_AFTER_RESTART: [{"id":13,"documentId":8,"versionNo":1,"fileName":"demo-kb.md","fileSize":456,"fileType":"md","contentHash":"4cf8aebb56133467aaec11a63c9a0ba9a737246a19b143eb3e8aee3d5f1d740b","storageKey":"kb/8/v1","changeNote":"首次上传","createdBy":null,"createTime":"2026-11-14T05:27:14.080703"},{"id":14,"documentId":8,"versionNo":2,"fileName":"demo-kb.md","fileSize":563,"fileType":"md","contentHash":"ebbf6436972774fc87953eb356c47a29676f509d93c4a3e9f650c6bdd92fa9b4","storageKey":"kb/8/v2","changeNote":"内容变更，重新入库并向量化","createdBy":null,"createTime":"2026-11-14T05:27:14.163635"}]
