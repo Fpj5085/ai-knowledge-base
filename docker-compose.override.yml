@@ -1,4 +1,28 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: akb-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://akb-postgres:5432/ai_kb
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123456}
+      REDIS_HOST: akb-redis
+      REDIS_PORT: 6379
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-sk-placeholder-no-real-key}
+      OPENROUTER_BASE_URL: ${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-z-ai/glm-4.5-air}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    ports: !override
+      - "8082:8080"
+    restart: unless-stopped
+
   postgres:
     container_name: akb-postgres
     ports: !override

@@ -33,7 +33,7 @@ spring:
 llm:
   openrouter:
     api-key: ${OPENROUTER_API_KEY}
-    base-url: https://openrouter.ai/api/v1
+    base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
     model: ${OPENROUTER_MODEL:z-ai/glm-4.5-air}
 
 embedding:
