@@ -292,3 +292,41 @@ compose.ollama.yml 已就绪（容器 akb-ollama，宿主机 11435，不占 1143
 合计回收约 4.78GB。保留项说明：Build Cache 剩余 8 个 ACTIVE 条目未清理（属于仍在使用的构建上下文，可能包含 A 项目活跃缓存，按指令不动）；命名卷（含 akb 演示数据）全部保留。
 
 B 项目后续纪律：不再发起任何镜像重建；持久化/演示验证均基于现有 akb-app 镜像进行（已完成）。
+
+---
+
+# B4 任务交接 — P3 收尾与价值强化
+
+日期：2026-11-15（Asia/Shanghai）。基于 B3 提交链（最新 57ef11f）。
+
+## 1. Ollama 本地化复核（任务单第 1 项）
+
+B3 期间已实际完成并验证，本轮复核属实，无需第二次尝试：
+
+- 宿主机 Ollama 在位（C:\Users\28953\AppData\Local\Programs\Ollama\ollama.exe，11434），ollama list：nomic-embed-text 77MB（本地 GGUF 导入，EMBED_DIM=768 已验证）、qwen2.5-chat 491MB；合计 568MB，符合磁盘纪律（小于 1GB）。
+- 下载路径如实记录：registry.ollama.ai 与 hf-mirror 均被代理 MITM 拦截（x509 / SSL 35 / exit 56），最终 nomic 经 hf-mirror curl -k 成功、qwen 经 modelscope.cn 直连成功——没有模型从 ollama pull 渠道下载。
+- 容器化 akb-ollama（compose.ollama.yml，11435）保持 B2 的独立文件形态，未启用（宿主机 Ollama 已可用，避免重复占用 vhdx）；README 已记录启用命令。
+- 真实链路 B3 已跑通并留档：上传→真实 Ollama 向量化→pgvector 检索→本地 LLM 问答（curl-evidence.txt NDJSON 含 sources/versionNo/charOffset/similarityScore）。
+
+## 2. CODE_GUIDE.md（任务单第 2 项）
+
+路径：docs/CODE_GUIDE.md（约 10KB）。大纲：
+
+    1 项目分层总览
+    2 版本管理链路逐文件（DocumentVersion / Repository / DocumentService 事务流程与并发控制 / TextChunk / VectorStoreService 版本过滤 SQL）
+    3 RAG 引用链路逐层（DTO 分层、RagService 流程、NDJSON 流式原理、前端引用卡片）
+    4 Embedding 与 pgvector（维度一致性、Redis 缓存、HNSW/IVFFlat 索引取舍）
+    5 面试问答 7 题（索引选型、维度一致性、并发版本号、幂等重传、NDJSON vs SSE、过期内容过滤、相似度得分来源）
+    6 已知坑（@MockitoBean 重置、UNION ALL 对齐、同名文件幂等前提、MITM 网络、小模型判别弱）
+
+## 3. 自查修复（任务单第 3 项）真实结果
+
+- mvnw test 完整复跑：Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 → BUILD SUCCESS，EXIT=0（日志 build-test-b4.log，本地保留，被 .gitignore 排除）。
+- 两版本文档引用验证：/api/rag/ask/stream?documentVersionId=13 → sources versionNo=1 score=0.6095（片段头 演示文档 v1）；documentVersionId=14 → versionNo=2 score=0.5787（演示文档 v2）。指定版本问答下版本追踪精确命中，证据已追加 curl-evidence.txt。
+- 前端 UI 实测：登录+提问正常（本地 LLM 回答），但含历史的会话再次落入 0.5B 改写/判别弱分支，实时 sources 卡片未复现；引用结构以 curl NDJSON 为权威证据，卡片渲染代码由 FrontendSourceCardTest 锁定。属已知限制（B3 已登记），非本轮回归。
+- .env / compose 一致性：仓库根目录无 .env 文件（Test-Path False）；compose 三文件中所有密钥均为占位符或环境变量引用；git grep 无真实 sk- Key 残留；docs/demo-evidence/token.txt 已在 B3 末移出 Git（本地保留）。
+
+## 4. 提交清单
+
+    B4: code learning guide for versioning and citation chain
+    B4: append B4 handoff (ollama recheck, self-check results)
