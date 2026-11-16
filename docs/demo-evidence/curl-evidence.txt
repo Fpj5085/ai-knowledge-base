@@ -59,3 +59,8 @@ VERSION_QUERY_13 -> versionNo=1 charOffset=0 score=0.6095 head=# 星云咖啡烘
 VERSION_QUERY_14 -> versionNo=2 charOffset=0 score=0.5787 head=# 星云咖啡烘焙指南（演示文档 v2）
 
 本文档为自制合成演示内容，用于 B3 
+HOST_APP_ERR: Response status code does not indicate success: 401 ().
+=== B5 host-app(8084) fix verification ===
+STEP1_GENERAL_OK (history created)
+STEP2_WITH_HISTORY_SOURCES:
+{"type":"sources","data":[{"chunkId":14,"documentId":8,"chunkIndex":0,"distance":0.42133883412415096,"content":"# 星云咖啡烘焙指南（演示文档 v2）\n\n本文档为自制合成演示内容，用于 B3 部署演示。第二版更新了烘焙与冲煮章节。\n\n## 咖啡豆产地\n\n云南保山产区海拔约 1200 米，采用水洗处理法，酸质明亮，带有柑橘与红茶风味。\n\n## 烘焙曲线\n\n第二版修订：一爆出现在 198 摄氏度，发展期建议延长至总烘焙时间的 20% 到 24%，并新增 ROR 充足下降原则。\n\n## 冲煮参数\n\n第二版修订：手冲推荐粉水比 1:16，水温 90 摄氏度，萃取时间 2 分 45 秒。","versionNo":2,"charOffset":0,"similarityScore":0.578661165875849}]}
