@@ -362,6 +362,8 @@ B3 期间已实际完成并验证，本轮复核属实，无需第二次尝试�
 
 11-16 复跑（总控统一下停容器后）：55433/16379/8084 全部拒绝连接，DocumentVersionRagIntegrationTest 7 用例 + contextLoads 共 8 个 Errors（根因均为 Hibernate 无法连接 JDBC 确定 Dialect），FrontendSourceCardTest 2/2 通过，BUILD FAILURE，EXIT=1。日志原样保留 build-test-b5.log。属环境性受阻（总控指令禁止运行 docker 命令恢复容器），非代码回归——同一代码在 11-15 曾 10/10 全绿，容器恢复后复跑即为 B6 待办。
 
+11-16 复跑（总控恢复 akb-postgres/akb-redis 后）：Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 → BUILD SUCCESS，EXIT=0（日志 build-test-b5-rerun.log，本地保留）。B5 修复在真实 PG/pgvector + Redis 环境下确认无回归，B5 验收闭环。
+
 ## 4. 磁盘与环境事件（B5 期间）
 
 - Docker Desktop WSL 引擎崩溃一次（localhost 代理未镜像到 WSL + 0xc00000fd），重启 Docker Desktop 后三容器自动恢复（restart: unless-stopped）——又一次崩溃恢复持久化验证。
