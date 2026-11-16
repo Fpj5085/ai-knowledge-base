@@ -284,3 +284,15 @@ src/main/resources
 停止与持久化：docker compose down 保留命名卷（postgres-data/redis-data），重新 up 后文档、版本、会话历史全部保留。
 
 演示材料：docs/demo-docs/（自制合成文档 v1/v2/PDF/DOCX）与 docs/demo-evidence/（curl 证据、持久化证据、界面截图）。
+
+## 二次开发说明（B5：引用卡片修复 + 演示视频）
+
+本节区分原项目功能与二次开发贡献，供 review 与学习：
+
+- **原项目（上游 89few/ai-knowledge-base）**：文档上传/切片、Ollama 向量化、pgvector 检索、OpenRouter 问答、NDJSON 流式、单页前端。
+- **B2（本仓库新增）**：文档版本管理（kb_document_version、content_hash 幂等重传、并发唯一约束兜底）、可追溯引用（versionNo/charOffset/similarityScore）、版本过滤检索、版本 API、前端引用卡片。
+- **B3（本仓库新增）**：容器化部署（Dockerfile + akb-app 服务）、LLM base-url 参数化（可指向本地 Ollama OpenAI 兼容端点）、演示文档与证据链、可选 Ollama compose。
+- **B5（本仓库新增）**：
+  - **引用卡片修复**：RagService 判别提示词收紧（历史会话/多轮会话不影响 YES 判断），并在"命中切片但判别弱相关"的兜底分支无条件返回 sources——修复"含历史会话时实时引用卡片不渲染"；前端 sources 事件本就无条件渲染，由 FrontendSourceCardTest 新增用例锁定（sources 事件处理不得附加条件）。
+  - **演示视频**：docs/demo/demo-recording.mp4（480 秒完整流程，1280x720/15fps，6.8MB，ffmpeg 压缩自 gdigrab 实时录屏）。
+- 详细提交历史见 git log（B1: ~ B5: 前缀），每步验证证据在 docs/demo-evidence/ 与 HANDOFF.md。

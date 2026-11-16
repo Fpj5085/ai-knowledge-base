@@ -330,3 +330,47 @@ B3 期间已实际完成并验证，本轮复核属实，无需第二次尝试�
 
     B4: code learning guide for versioning and citation chain
     B4: append B4 handoff (ollama recheck, self-check results)
+
+---
+
+# B5 任务交接 — P3 第二波：引用卡片修复 + 演示完善
+
+日期：2026-11-15 ~ 11-16（Asia/Shanghai）。基于 B4 提交链（f9a7bf3），经额度中断后由 B5-R 续作完成。
+
+## 1. 引用卡片修复说明（B5 第 1 项）
+
+根因与修复（两处代码改动）：
+
+1. RagService.judgeKnowledgeRelevant 判别提示词收紧：新增规则"问题需要结合对话历史才能理解，但知识库内容仍是回答核心依据时输出 YES""多轮会话中只要知识库内容包含回答所需事实即输出 YES"——历史会话不再必然落入 NO 分支。
+2. 兜底修复：ask 与 streamAsk 的"命中切片但判别弱相关"分支原本返回空 sources，现无条件返回 buildRagSources(chunks)——只要检索命中，前端就有 sources 事件可渲染卡片（前端处理本就无条件，新增测试锁定）。
+
+修复验证证据（11-15 修复后、容器下停前实测）：
+
+- curl NDJSON：同一 sessionId 先发"你好"产生历史，再发知识库问题 → sources 事件出现（versionNo=2、charOffset=0、similarityScore≈0.579），修复前该路径返回空 sources（curl-evidence.txt 中 STEP2_WITH_HISTORY_SOURCES 段）。
+- 指定版本：documentVersionId=13 → sources versionNo=1 score 0.6095（v1 片段）；documentVersionId=14 → versionNo=2 score 0.5787（v2 片段）——版本追踪精确命中（curl-evidence.txt 中 B4/B5 段）。
+- 测试锁定：FrontendSourceCardTest 新增 sourcesEventIsRenderedUnconditionallyEvenWithSessionHistory（断言 sources 事件处理无附加条件），FrontendSourceCardTest 2/2 通过。
+
+## 2. 演示视频（B5 第 2 项）
+
+路径：docs/demo/demo-recording.mp4。gdigrab 实时录屏（480 秒，桌面全屏，15fps），经 ffmpeg 压缩（scale 1280x720、15fps、crf 38、preset fast）：441,684,373 字节 → 6,795,103 字节（6.8MB，回收约 434MB C 盘空间）。ffprobe 验证可播放（duration 480.07s），抽帧（30s/200s/420s）确认内容可辨识。
+
+录制过程说明（如实）：实时录制期间多次因工具调度中断产生空跑素材，最终成片为 480 秒连续桌面录像，关键流程（登录、上传版本链路、带引用问答、版本列表 JSON）的画面以文档 11 的 v1/v2 真实数据呈现；部分步骤经 API 完成，界面同步展示结果。
+
+## 3. 测试真实结果（含 exit code）
+
+11-15 修复后（容器运行中）：Tests run: 10, Failures: 0, Errors: 0 → BUILD SUCCESS，EXIT=0（含新增的 FrontendSourceCardTest 第 2 用例）。
+
+11-16 复跑（总控统一下停容器后）：55433/16379/8084 全部拒绝连接，DocumentVersionRagIntegrationTest 7 用例 + contextLoads 共 8 个 Errors（根因均为 Hibernate 无法连接 JDBC 确定 Dialect），FrontendSourceCardTest 2/2 通过，BUILD FAILURE，EXIT=1。日志原样保留 build-test-b5.log。属环境性受阻（总控指令禁止运行 docker 命令恢复容器），非代码回归——同一代码在 11-15 曾 10/10 全绿，容器恢复后复跑即为 B6 待办。
+
+## 4. 磁盘与环境事件（B5 期间）
+
+- Docker Desktop WSL 引擎崩溃一次（localhost 代理未镜像到 WSL + 0xc00000fd），重启 Docker Desktop 后三容器自动恢复（restart: unless-stopped）——又一次崩溃恢复持久化验证。
+- 宿主应用（8084）在容器下停/恢复期间出现 Hikari 连接池失效，重启进程即恢复；期间发现 login 会 deleteByUserId 互踢旧 token（单 token 设计），多端验证时需各自重新登录。
+- C 盘红色警报后：遵守零 docker 命令纪律；视频压缩回收约 434MB。
+
+## 5. 提交清单
+
+    B5: fix citation card under session history (judge prompt + sources fallback)
+    B5: compress demo recording (441MB -> 6.8MB) and demo docs
+    B5: append B5 handoff and readme secondary-dev section
+    B5: append citation curl evidence
