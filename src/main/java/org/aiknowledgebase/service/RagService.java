@@ -215,7 +215,8 @@ public class RagService {
                     currentSessionId,
                     question,
                     answer,
-                    List.of()
+                    // B5 兜底：知识库命中了切片但判别为弱相关，仍返回引用供前端展示
+                    buildRagSources(chunks)
             );
         }
 
@@ -362,7 +363,8 @@ public class RagService {
 
                     if (!relevant) {
                         prompt = buildGeneralChatPrompt(normalizedQuestion, history);
-                        sources = List.of();
+                        // B5 兜底：历史会话/弱相关场景也返回引用，前端据此渲染卡片
+                        sources = buildRagSources(chunks);
 
                     } else {
                         prompt = buildRagPrompt(normalizedQuestion, context, history);
@@ -588,7 +590,8 @@ public class RagService {
                 1. 如果知识库内容能够直接回答用户问题，输出 YES。
                 2. 如果知识库内容只是泛泛相关，但不能真正回答用户问题，输出 NO。
                 3. 如果用户是在闲聊、吐槽、问你是谁、问你能做什么、问上文内容，输出 NO。
-                4. 如果问题需要结合对话历史而不是知识库内容，输出 NO。
+                4. 如果问题需要结合对话历史才能理解，但知识库内容仍然是回答的核心依据，输出 YES——有历史会话不影响 YES 判断。
+                5. 多轮会话中，只要知识库内容包含回答当前问题所需的事实，输出 YES。
                 
                 【输出要求】
                 只能输出 YES 或 NO，不要输出其他内容。
