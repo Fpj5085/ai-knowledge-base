@@ -294,5 +294,6 @@ src/main/resources
 - **B3（本仓库新增）**：容器化部署（Dockerfile + akb-app 服务）、LLM base-url 参数化（可指向本地 Ollama OpenAI 兼容端点）、演示文档与证据链、可选 Ollama compose。
 - **B5（本仓库新增）**：
   - **引用卡片修复**：RagService 判别提示词收紧（历史会话/多轮会话不影响 YES 判断），并在"命中切片但判别弱相关"的兜底分支无条件返回 sources——修复"含历史会话时实时引用卡片不渲染"；前端 sources 事件本就无条件渲染，由 FrontendSourceCardTest 新增用例锁定（sources 事件处理不得附加条件）。
-  - **演示视频**：docs/demo/demo-recording.mp4（480 秒完整流程，1280x720/15fps，6.8MB，ffmpeg 压缩自 gdigrab 实时录屏）。
+  - **演示视频**：docs/demo/demo-recording.mp4（480 秒完整流程，1280x720/15fps，6.5 MiB / 6,795,103 字节，ffmpeg 压缩自 gdigrab 实时录屏）。
+  - **配套截图组**：docs/demo-evidence/screenshots/（登录页、重启后主页、问答流、带引用回答恢复等关键界面）。
 - 详细提交历史见 git log（B1: ~ B5: 前缀），每步验证证据在 docs/demo-evidence/ 与 HANDOFF.md。

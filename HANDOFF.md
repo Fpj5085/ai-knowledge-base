@@ -352,7 +352,7 @@ B3 期间已实际完成并验证，本轮复核属实，无需第二次尝试�
 
 ## 2. 演示视频（B5 第 2 项）
 
-路径：docs/demo/demo-recording.mp4。gdigrab 实时录屏（480 秒，桌面全屏，15fps），经 ffmpeg 压缩（scale 1280x720、15fps、crf 38、preset fast）：441,684,373 字节 → 6,795,103 字节（6.8MB，回收约 434MB C 盘空间）。ffprobe 验证可播放（duration 480.07s），抽帧（30s/200s/420s）确认内容可辨识。
+路径：docs/demo/demo-recording.mp4。gdigrab 实时录屏（480 秒，桌面全屏，15fps），经 ffmpeg 压缩（scale 1280x720、15fps、crf 38、preset fast）：441,684,373 字节 → 6,795,103 字节（6.5 MiB，回收约 434MB C 盘空间）。ffprobe 验证可播放（duration 480.07s），抽帧（30s/200s/420s）确认内容可辨识。配套截图组：docs/demo-evidence/screenshots/（与视频对应的关键界面静态证据，二者口径一致，终审归档统一采用"6.5 MiB"表述）。
 
 录制过程说明（如实）：实时录制期间多次因工具调度中断产生空跑素材，最终成片为 480 秒连续桌面录像，关键流程（登录、上传版本链路、带引用问答、版本列表 JSON）的画面以文档 11 的 v1/v2 真实数据呈现；部分步骤经 API 完成，界面同步展示结果。
 
