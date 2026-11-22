@@ -376,3 +376,36 @@ B3 期间已实际完成并验证，本轮复核属实，无需第二次尝试�
     B5: compress demo recording (441MB -> 6.8MB) and demo docs
     B5: append B5 handoff and readme secondary-dev section
     B5: append citation curl evidence
+
+---
+
+# GitHub 鍙戝竷璁板綍 鈥?B-GH2
+
+鏃ユ湡锛?026-11-22锛圓sia/Shanghai锛?
+## 浠撳簱
+
+- 鍏紑 fork锛歨ttps://github.com/Fpj5085/ai-knowledge-base锛坢ain 鍒嗘敮锛宱rigin锛?- 涓婃父锛歨ttps://github.com/89few/ai-knowledge-base锛圡IT锛岀讲鍚嶄繚鐣欙級
+- Topics锛歴pring-boot, pgvector, rag, ollama, llm, postgresql, redis, document-management, java
+
+## CI
+
+- 宸ヤ綔娴侊細.github/workflows/ci.yml锛堥浂瀵嗛挜璺緞锛歱gvector/pg16 + redis:7 services 瀹瑰櫒锛屽崰浣嶇 LLM 閰嶇疆锛宮vnw test锛?- 棣栬窇澶辫触锛坋xit 126锛宮vnw 缂烘墽琛屼綅锛夆啋 淇锛坓it update-index --chmod=+x mvnw + chmod 姝ラ + setup-java v5锛夆啋 璺戠豢
+- 璺戠豢 run锛歨ttps://github.com/Fpj5085/ai-knowledge-base/actions/runs/45017684573锛坖ob test 48s success锛?- 寰界珷宸插姞 README 棣栧睆锛堣窇缁垮悗娣诲姞锛?
+## 绾夸笂澶嶆牳
+
+- gh api 澶嶆牳锛歀ICENSE 鍦ㄤ綅锛?087 瀛楄妭锛夛紱鏍圭洰褰曞惈 Dockerfile/HANDOFF.md/docs/.github 绛夊畬鏁寸粨鏋勶紱commits 鎬绘暟 91锛孊1~B5 鍏ㄩ儴鎻愪氦鍙銆?- README 棣栧睆娴忚鍣ㄦ埅鍥撅細docs/github-evidence/repo-page.png锛堟闈㈡埅鍥撅級銆?
+## 闄岀敓鐜楠岃瘉
+
+git clone https://github.com/Fpj5085/ai-knowledge-base.git 鍒?K:Fpj Project	mp-clone-b锛圚EAD f2c49c5b78070f3471300258ecc7d9cf9675841d锛屼笌鏈湴 origin/main 涓€鑷达級锛屾寜闆跺瘑閽ヨ矾寰勮繛鎺ユ€绘帶鎷夎捣鐨?akb-postgres/akb-redis 璺?mvnw test锛?
+    Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 鈫?BUILD SUCCESS锛圗XIT=0锛?
+涓庢湰鍦颁粨搴撶粨鏋滀竴鑷达紙10/10锛夈€傞娆?clone 鍥犵綉缁滀腑鏂け璐ワ紙remote did not send all necessary objects锛夛紝閲嶈瘯寰幆鍚庢垚鍔燂紝鏃ュ織鍦?$TEMP/akb-clone*.log銆?
+## 鏍囩涓?Release
+
+- Tag锛歷1.0.0锛坅nnotated锛屾寚鍚?f2c49c5b78070f3471300258ecc7d9cf9675841d锛?- Release锛歨ttps://github.com/Fpj5085/ai-knowledge-base/releases/tag/v1.0.0锛堝惈 B1~B5 鍙樻洿鎽樿銆佽祫浜?demo-recording.mp4锛?- demo-recording.mp4 SHA256锛?D4AE81BB1B8C2717D82150A664B280635168C4439B9A17EDDCC9523E813833D
+
+## 鎻愪氦娓呭崟
+
+    B-GH2: add zero-key CI workflow (pgvector+redis services, mvnw test)
+    B-GH2: fix CI (chmod mvnw, setup-java v5)
+    B-GH2: README first screen (badges, mermaid architecture, AI collaboration statement, known limitations)
+    B-GH2: record green rerun after containers restored (10/10, exit 0)
