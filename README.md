@@ -114,6 +114,17 @@ macOS / Linux：
 
 打开 <http://localhost:8080>。
 
+## 架构图
+
+`mermaid
+flowchart LR
+    U[浏览器单页前端] -->|NDJSON 流式问答| A[Spring Boot 后端]
+    A -->|文本切片| V[Ollama Embedding]
+    A -->|向量写入/检索| P[(PostgreSQL + pgvector)]
+    A -->|限流/缓存| R[(Redis)]
+    A -->|LLM 问答| L[LLM 网关<br/>OpenRouter 或本地 Ollama]
+    D[文档上传 PDF/DOCX/TXT/MD] --> A
+``n
 ## VS Code 运行
 
 建议安装：
@@ -252,6 +263,20 @@ src/main/resources
 ## License
 
 本项目采用 [MIT License](LICENSE)。
+
+## AI Coding Agent 协作声明
+
+本项目由本人与 AI Coding Agent（Codex / GLM 系列）协作完成：Agent 参与代码实现、测试编写、部署脚本与文档整理；本人负责需求定义、分阶段任务拆解与验收（B1~B5 逐轮真实测试验收）、关键代码的逐文件学习（见 docs/CODE_GUIDE.md）。全部提交记录与验证证据（docs/demo-evidence/、HANDOFF.md）可追溯，不做能力夸大。
+
+## 已知限制与未验证功能
+
+- 本地小参数量 LLM（qwen2.5-0.5b）做问题改写与相关性判断不稳定，含历史会话时可能落入闲聊分支；引用结构以 NDJSON sources 事件为权威，已通过兜底修复保证命中切片即返回引用。
+- UI 历史会话恢复不重渲染引用来源卡片（仅实时流渲染）。
+- PDF/DOCX 经 /api/files/upload 的完整链路在 Ollama 就绪后尚未复验（文本解析已单独验证通过）。
+- storage_key 目前仅记录逻辑路径，未保存物理文件副本；版本对比（diff）、旧版本向量回收未实现。
+- 现为单机演示配置：公网部署需增加 HTTPS、CORS/CSRF、访问控制与反向代理限流（上游 README 安全说明继续适用）。
+
+详细信息与验证记录见 [HANDOFF.md](HANDOFF.md)（B1~B5 逐轮交接）。
 
 ## 二次开发（B2：文档版本管理 + 来源引用增强）
 
