@@ -1,0 +1,1 @@
+{"assets":["demo-recording.mp4"],"html_url":"https://github.com/Fpj5085/ai-knowledge-base/releases/tag/v1.0.0","name":"v1.0.0","published_at":"2026-11-22T13:09:39Z","tag_name":"v1.0.0"}

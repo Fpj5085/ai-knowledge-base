@@ -1,0 +1,1 @@
+{"default_branch":"main","full_name":"Fpj5085/ai-knowledge-base","html_url":"https://github.com/Fpj5085/ai-knowledge-base","pushed_at":"2026-11-22T15:30:50Z","topics":["document-management","java","llm","ollama","pgvector","postgresql","rag","redis","spring-boot"]}
