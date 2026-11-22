@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ai_kb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456
+        ports:
+          - 55433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ai_kb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 16379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Enable pgvector extension
+        run: docker exec ${{ job.services.postgres.id }} psql -U postgres -d ai_kb -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+      - name: Run tests (zero-key path)
+        env:
+          DB_URL: jdbc:postgresql://localhost:55433/ai_kb
+          DB_USERNAME: postgres
+          DB_PASSWORD: 123456
+          REDIS_HOST: localhost
+          REDIS_PORT: 16379
+          OPENROUTER_API_KEY: sk-placeholder-no-real-key
+        run: ./mvnw -B test
